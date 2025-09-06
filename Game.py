@@ -4,7 +4,7 @@ def ball_movement():
     """
     Handles the movement of the ball and collision detection with the player and screen boundaries.
     """
-    global ball_speed_x, ball_speed_y, score, start
+    global ball_speed_x, ball_speed_y, score, start, game_level
 
     # Move the ball
     ball.x += ball_speed_x
@@ -12,19 +12,35 @@ def ball_movement():
 
     # Start the ball movement when the game begins
     # TODO Task 5 Create a Merge Conflict
-    speed = 13
+    speed = 5
     if start:
-        ball_speed_x = speed * random.choice((1, -1))  # Randomize initial horizontal direction
-        ball_speed_y = speed * random.choice((1, -1))  # Randomize initial vertical direction
+        ball_speed_x = 0  # Randomize initial horizontal direction
+        ball_speed_y = 5  # start by going down
         start = False
 
     # Ball collision with the player paddle
     if ball.colliderect(player):
+
+        if game_level == -1:
+            game_level += 1
+            ball_speed_x = speed * random.choice((1, -1))  # Randomize initial horizontal direction
+
+        # Ball speed increase every paddle hit
+        game_level += 1
+        if game_level == 5:
+            speed += 2
+            ball_speed_x = speed
+            ball_speed_y = speed
+            game_level = 0
+
         if abs(ball.bottom - player.top) < 10:  # Check if ball hits the top of the paddle
             # TODO Task 2: Fix score to increase by 1
-            score = 1  # Increase player score
+            score += 1  # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
+
             # TODO Task 6: Add sound effects HERE
+
+
 
     # Ball collision with top boundary
     if ball.top <= 0:
@@ -54,10 +70,11 @@ def restart():
     """
     Resets the ball and player scores to the initial state.
     """
-    global ball_speed_x, ball_speed_y, score
+    global ball_speed_x, ball_speed_y, score, newgame
     ball.center = (int(screen_width / 2), int(screen_height / 2))  # Reset ball position to center
     ball_speed_y, ball_speed_x = 0, 0  # Stop ball movement
     score = 0  # Reset player score
+    newgame = True
 
 # General setup
 pygame.mixer.pre_init(44100, -16, 1, 1024)
@@ -84,6 +101,8 @@ player = pygame.Rect(screen_width/2 - 45, screen_height - 20, player_width, play
 ball_speed_x = 0
 ball_speed_y = 0
 player_speed = 0
+game_level = -1
+newgame = True
 
 # Score Text setup
 score = 0
@@ -95,7 +114,7 @@ start = False  # Indicates if the game has started
 while True:
     # Event handling
     # TODO Task 4: Add your name
-    name = "John Doe"
+    name = "Angel and Yaneli?"
     for event in pygame.event.get():
         if event.type == pygame.QUIT:  # Quit the game
             pygame.quit()
@@ -105,8 +124,9 @@ while True:
                 player_speed -= 6  # Move paddle left
             if event.key == pygame.K_RIGHT:
                 player_speed += 6  # Move paddle right
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE and newgame:
                 start = True  # Start the ball movement
+                newgame = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 player_speed += 6  # Stop moving left
