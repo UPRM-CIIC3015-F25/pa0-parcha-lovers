@@ -12,7 +12,7 @@ def ball_movement():
 
     # Start the ball movement when the game begins
     # TODO Task 5 Create a Merge Conflict
-    speed = 7
+    speed = 10
     if start:
         ball_speed_x = speed * random.choice((1, -1))  # Randomize initial horizontal direction
         ball_speed_y = speed * random.choice((1, -1))  # Randomize initial vertical direction
@@ -55,7 +55,7 @@ def restart():
     Resets the ball and player scores to the initial state.
     """
     global ball_speed_x, ball_speed_y, score
-    ball.center = (screen_width / 2, screen_height / 2)  # Reset ball position to center
+    ball.center = (int(screen_width / 2), int(screen_height / 2))  # Reset ball position to center
     ball_speed_y, ball_speed_x = 0, 0  # Stop ball movement
     score = 0  # Reset player score
 
