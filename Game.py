@@ -58,7 +58,7 @@ def ball_movement():
 
         if abs(ball.bottom - player.top) < 10:  # Check if ball hits the top of the paddle
             # TODO Task 2: Fix score to increase by 1
-            score = 1  # Increase player score
+            score += 1   # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
             ball_speed_x = speed * random.choice(range(-2, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
 
