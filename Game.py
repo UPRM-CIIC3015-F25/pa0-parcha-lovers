@@ -1,6 +1,24 @@
 import pygame, sys, random
 from pygame import mixer
 
+def background_music():
+    # Depending on the menu you're in, just music is on.
+    song = 1
+
+    # In-Game Theme
+    if song == 1:
+        mixer.music.load("resources/sounds/anomalocaris.mp3")
+        mixer.music.set_volume(0.2)
+
+    # Main Menu Theme
+    if song == 2:
+        mixer.music.load("resources/sounds/weevil.mp3")
+        mixer.music.set_volume(0.4)
+
+    # Loser's Theme
+    if song == 3:
+        mixer.music.load("resources/sounds/snail.mp3")
+        mixer.music.set_volume(0.3)
 
 def ball_movement():
     """
@@ -8,30 +26,32 @@ def ball_movement():
     """
     global ball_speed_x, ball_speed_y, score, start, game_level
 
-    # Move the ball
+    # Base Ball Movement
     ball.x += ball_speed_x
     ball.y += ball_speed_y
 
-    # Start the ball movement when the game begins
+    # ==========
     # TODO Task 5 Create a Merge Conflict
+    # Change the value of speed in a different branch to make a merge conflict.
     speed = 5
+    # ==========
+
+    # Start the ball movement when the game begins
     if start:
         ball_speed_x = 0  # Randomize initial horizontal direction
         ball_speed_y = 5  # start by going down
-        music() # background music
         start = False
 
     # Ball collision with the player paddle
     if ball.colliderect(player):
-
         if game_level == -1:
             game_level += 1
             ball_speed_x = speed * random.choice((1, -1))  # Randomize initial horizontal direction
 
         # Ball speed increase every paddle hit
         game_level += 1
-        if game_level == 5:
-            speed += 1
+        if game_level == 1:
+            speed = 1
             ball_speed_x = speed
             ball_speed_y = speed
             game_level = 0
@@ -45,19 +65,21 @@ def ball_movement():
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
             sound = random.choice(range(1,3))
+            pygame.mixer.Channel(1).set_volume(0.1)
+
             if sound == 1:
-                pygame.mixer.Channel(0).play(pygame.mixer.Sound("boink1.mp3"))
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink1.mp3"))
             if sound == 2:
-                pygame.mixer.Channel(0).play(pygame.mixer.Sound("boink2.mp3"))
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink2.mp3"))
             if sound == 3:
-                pygame.mixer.Channel(0).play(pygame.mixer.Sound("boink3.mp3"))
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink3.mp3"))
 
     # Ball collision with top boundary
     if ball.top <= 0:
         ball_speed_y *= -1  # Reverse ball's vertical direction
 
     # Ball collision with left and right boundaries
-    if ball.left <= 0 or ball.right >= screen_width:
+    if ball.left <= 0 or ball.right >= (screen_width):
         ball_speed_x *= -1
 
     # Ball goes below the bottom boundary (missed by player)
@@ -86,27 +108,6 @@ def restart():
     score = 0  # Reset player score
     newgame = True
 
-def music():
-    # Depending on the menu you're in, just music is on.
-    song = 1
-    if song == 1:
-        # Song choice
-        mixer.music.load("anomalocaris.mp3")
-
-        # Volume for the song
-        mixer.music.set_volume(0.2)
-
-    if song == 2:
-        mixer.music.load("weevil.mp3")
-        mixer.music.set_volume(0.4)
-
-    if song == 3:
-        mixer.music.load("snail.mp3")
-        mixer.music.set_volume(0.3)
-
-
-    # Start playing the song
-    mixer.music.play()
 
 # General setup
 pygame.mixer.pre_init() # Starting the mixer
@@ -168,15 +169,17 @@ while True:
             if event.key == pygame.K_RIGHT:
                 player_speed -= 6  # Stop moving right
 
-    # Game Logic
+    # ==== Game Logic ====
     ball_movement()
     player_movement()
 
-    # Visuals
+    # ==== Visuals ====
+
     light_grey = pygame.Color('grey83')
     red = pygame.Color('red')
     screen.fill(bg_color)  # Clear screen with background color
     pygame.draw.rect(screen, light_grey, player)  # Draw player paddle
+
     # TODO Task 3: Change the Ball Color
     pygame.draw.ellipse(screen, light_grey, ball)  # Draw ball
     player_text = basic_font.render(f'{score}', False, light_grey)  # Render player score
