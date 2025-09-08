@@ -1,40 +1,45 @@
 import pygame, sys, random
 from pygame import mixer
 
+# ==========
+# TODO Task 5 Create a Merge Conflict
+# Change the value of speed in a different branch to make a merge conflict.
+speed = 5
+# ==========
+
 def background_music():
     # Depending on the menu you're in, just music is on.
-    song = 1
+    global song, music_check
 
-    # In-Game Theme
-    if song == 1:
-        mixer.music.load("resources/sounds/anomalocaris.mp3")
-        mixer.music.set_volume(0.2)
+    if not music_check:
 
-    # Main Menu Theme
-    if song == 2:
-        mixer.music.load("resources/sounds/weevil.mp3")
-        mixer.music.set_volume(0.4)
+        # In-Game Theme
+        if song == 1:
+            mixer.music.load("resources/sounds/anomalocaris.mp3")
+            mixer.music.set_volume(0.4)
+            pygame.mixer.Channel(0).play("resources/sounds/anomalocaris.mp3", -1)
 
-    # Loser's Theme
-    if song == 3:
-        mixer.music.load("resources/sounds/snail.mp3")
-        mixer.music.set_volume(0.3)
+        # Main Menu Theme
+        if song == 2:
+            mixer.music.load("resources/sounds/weevil.mp3")
+            mixer.music.set_volume(0.4)
+            pygame.mixer.music.play(-1)
+
+        # Loser's Theme
+        if song == 3:
+            mixer.music.load("resources/sounds/snail.mp3")
+            mixer.music.set_volume(0.3)
+            pygame.mixer.music.play(-1)
 
 def ball_movement():
     """
     Handles the movement of the ball and collision detection with the player and screen boundaries.
     """
-    global ball_speed_x, ball_speed_y, score, start, game_level, current_paddlecolor
+    global ball_speed_x, ball_speed_y, score, start, game_level, speed, current_color
 
     # Base Ball Movement
     ball.x += ball_speed_x
     ball.y += ball_speed_y
-
-    # ==========
-    # TODO Task 5 Create a Merge Conflict
-    # Change the value of speed in a different branch to make a merge conflict.
-    speed = 5
-    # ==========
 
     # Start the ball movement when the game begins
     if start:
@@ -46,26 +51,24 @@ def ball_movement():
     if ball.colliderect(player):
         if game_level == -1:
             game_level += 1
-            ball_speed_x = speed * random.choice((1, -1))  # Randomize initial horizontal direction
+            paddle_hit()  # Randomize initial horizontal direction
 
         # Ball speed increase every paddle hit
         game_level += 1
         if game_level == 1:
             speed += 1
-            ball_speed_x = speed
             ball_speed_y = speed
             game_level = 0
-
 
         if abs(ball.bottom - player.top) < 10:  # Check if ball hits the top of the paddle
             # TODO Task 2: Fix score to increase by 1
             global high_score
             score += 1   # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
-            ball_speed_x = speed * random.choice(range(-2, 1, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
+            paddle_hit()
 
             #New paddle color
-            current_paddlecolor = random.choice(paddle_colors)
+            current_color = random.choice(paddle_colors)
 
             # Update high score if current score is higher
             if score > high_score:
@@ -82,7 +85,7 @@ def ball_movement():
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
             sound = random.choice(range(1,3))
-            pygame.mixer.Channel(1).set_volume(0.1)
+            pygame.mixer.Channel(1).set_volume(0.5)
 
             if sound == 1:
                 pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink1.mp3"))
@@ -103,9 +106,11 @@ def ball_movement():
     if ball.bottom > screen_height:
         restart()  # Reset the game
 
-# WIP
 def paddle_hit():
-    global ball_speed_x, ball_speed_y, score, start, game_level
+    global ball_speed_x, ball_speed_y, score, start, game_level, player, ball, speed
+
+    distance = 2 * (ball.centerx - player.centerx) / player.width
+    ball_speed_x = distance * speed
 
 def player_movement():
     """
@@ -123,20 +128,27 @@ def restart():
     """
     Resets the ball and player scores to the initial state.
     """
-    global ball_speed_x, ball_speed_y, score, newgame
+    global ball_speed_x, ball_speed_y, score, newgame, speed
     ball.center = (int(screen_width / 2), int(screen_height / 2))  # Reset ball position to center
     ball_speed_y, ball_speed_x = 0, 0  # Stop ball movement
+    speed = 5
     score = 0  # Reset player score
     newgame = True
 
 # ==== Main game loop ====
 def gameplay():
-    global player_speed, newgame, start
+    global player_speed, newgame, start, song
     while True:
         # Event handling
         # Task 4: Add your name
         # Why is this here? I mean, sure, it's added? but what
         name = "Angel and Yaneli?"
+        song = 1
+
+        # Check for music being started
+        if not music_check:
+            background_music()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Quit the game
                 pygame.quit()
@@ -164,15 +176,17 @@ def gameplay():
         light_grey = pygame.Color('grey83')
         screen = pygame.display.get_surface()
         screen.fill(bg_color)
-        pygame.draw.rect(screen,current_paddlecolor, player)  # Draw player paddle
+        pygame.draw.rect(screen, current_color, player)  # Draw player paddle
 
         # TODO Task 3: Change the Ball Color
         pygame.draw.ellipse(screen, light_grey, ball)  # Draw ball
         player_text = basic_font.render(f'{score}', False, light_grey)  # Render player score
         screen.blit(player_text, (screen_width/2 - 15, 10))  # Display score on screen
+
         # Display high score below current score
         high_score_text = basic_font.render(f'High Score: {high_score}', False, light_grey)
         screen.blit(high_score_text, (screen_width / 2 - 70, 50))
+
         # Draw milestone popups
         for popup in milestones_popups[:]:
             popup_text = basic_font.render(popup['text'],True, pygame.Color('yellow'))
@@ -185,31 +199,65 @@ def gameplay():
         pygame.display.flip()
         clock.tick(60)  # Maintain 60 frames per second
 
-# WIP
-def mainmenu():
-    while True:
+# ======= WIP MAIN MENU =======
 
+def clamp(n, min_value, max_value):
+    return max(min_value, min(n, max_value))
+
+def shop():
+    x = "temp"
+
+def cosmetics():
+    x = "temp"
+
+def mainmenu():
+    global newgame, start, music_check
+    music_check = False  # Reset music flag
+
+
+    while True:
         screen = pygame.display.get_surface()
         screen.fill("black")
+
+        option = clamp(1, 1, 3)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # Quit the game
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    option += 1  # Move up an option
+                if event.key == pygame.K_DOWN:
+                    option -= 1  # Move down an option
+                if event.key == pygame.K_RETURN and newgame and option == 1:
+                    gameplay()
+                if event.key == pygame.K_RETURN and newgame and option == 2:
+                    shop()
+                if event.key == pygame.K_RETURN and newgame and option == 3:
+                    cosmetics()
+                if event.key == pygame.K_RETURN and newgame and option == 4:
+                    pygame.quit()
+                    sys.exit()
 
         # Update display
         pygame.display.flip()
         clock.tick(60)
 
 # General setup
-pygame.mixer.pre_init() # Starting the mixer
+pygame.mixer.pre_init(44100, -16, 2, 1024)
 pygame.mixer.init()
-pygame.mixer.pre_init(44100, -16, 1, 1024)
+mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
 
 # ==== Main Window setup ====
-width, height = (500, 500)
+width, height = (800, 1000)
 flags = pygame.SCALED
 flags |= pygame.RESIZABLE  # optional
 
-screen_width = 500  # Screen width (can be adjusted)
-screen_height = 500  # Screen height (can be adjusted)
+screen_width = 800  # Screen width (can be adjusted)
+screen_height = 1000  # Screen height (can be adjusted)
 screen = pygame.display.set_mode((width, height), flags)
 pygame.display.set_caption('Pong')  # Set window title
 
@@ -217,22 +265,24 @@ pygame.display.set_caption('Pong')  # Set window title
 bg_color = pygame.Color('grey12')
 
 # Game Rectangles
-ball = pygame.Rect(screen_width / 2 - 10, screen_height / 2 - 15, 30, 30)  # Ball (centered)
+ball = pygame.Rect(screen_width / 2 - 10, screen_height / 2 - 15, 20, 20)  # Ball (centered)
 # TODO Task 1 Make the paddle bigger
 player_height = 15
 player_width = 200
-player = pygame.Rect(screen_width/2 - 45, screen_height - 20, player_width, player_height)  # Player paddle
+player = pygame.Rect(screen_width/2 - 45, screen_height - 30, player_width, player_height)  # Player paddle
 
 # Paddle colors
 paddle_colors= [pygame.Color('red'), pygame.Color('green'), pygame.Color('yellow'), pygame.Color('blue')]
-current_paddlecolor = paddle_colors[0]
+current_color = paddle_colors[0]
 # ==== Game Variables ====
-ball_speed_x = 0
-ball_speed_y = 0
+ball_speed_x = 0.0
+ball_speed_y = 0.0
 player_speed = 0
 game_level = -1 # Resetting value to speed up the ball. Might be redundant.
 newgame = True # Indicates whether a new game can be begun.
 
+song = 2
+music_check = False
 
 # Score Text setup
 score = 0
@@ -246,4 +296,3 @@ milestones_messages= ["Good job!", "Amazing!", "Nice!", "Keep it up!"]
 
 start = False  # Indicates if the game has started
 
-gameplay()
