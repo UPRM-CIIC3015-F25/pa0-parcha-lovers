@@ -56,11 +56,18 @@ def ball_movement():
             ball_speed_y = speed
             game_level = 0
 
+
         if abs(ball.bottom - player.top) < 10:  # Check if ball hits the top of the paddle
             # TODO Task 2: Fix score to increase by 1
+            global high_score
             score += 1   # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
             ball_speed_x = speed * random.choice(range(-2, 1, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
+
+            # Update high score if current score is higher
+            if score > high_score:
+                high_score = score
+
 
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
@@ -152,6 +159,9 @@ def gameplay():
         pygame.draw.ellipse(screen, light_grey, ball)  # Draw ball
         player_text = basic_font.render(f'{score}', False, light_grey)  # Render player score
         screen.blit(player_text, (screen_width/2 - 15, 10))  # Display score on screen
+        # Display high score below current score
+        high_score_text = basic_font.render(f'High Score: {high_score}', False, light_grey)
+        screen.blit(high_score_text, (screen_width / 2 - 70, 50))
 
         # Update display
         pygame.display.flip()
@@ -205,7 +215,9 @@ newgame = True # Indicates whether a new game can be begun.
 
 # Score Text setup
 score = 0
+high_score = 0
 basic_font = pygame.font.Font('freesansbold.ttf', 32)  # Font for displaying score
+
 
 start = False  # Indicates if the game has started
 
