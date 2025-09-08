@@ -1,5 +1,6 @@
 import pygame, sys, random
 from pygame import mixer
+import math
 
 # ==========
 # TODO Task 5 Create a Merge Conflict
@@ -11,19 +12,16 @@ def background_music():
     # Depending on the menu you're in, just music is on.
     global song, music_check
 
-    if not music_check:
 
-        # In-Game Theme
-        if song == 1:
-            mixer.music.load("resources/sounds/anomalocaris.mp3")
-            mixer.music.set_volume(0.4)
-            pygame.mixer.Channel(0).play("resources/sounds/anomalocaris.mp3", -1)
+    mixer.music.load("resources/sounds/anomalocaris.mp3")
+    mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(-1)
 
-        # Main Menu Theme
-        if song == 2:
-            mixer.music.load("resources/sounds/weevil.mp3")
-            mixer.music.set_volume(0.4)
-            pygame.mixer.music.play(-1)
+    # Main Menu Theme
+    if song == 2:
+        mixer.music.load("resources/sounds/weevil.mp3")
+        mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(-1)
 
         # Loser's Theme
         if song == 3:
@@ -55,7 +53,7 @@ def ball_movement():
 
         # Ball speed increase every paddle hit
         game_level += 1
-        if game_level == 1:
+        if game_level == 5:
             speed += 1
             ball_speed_y = speed
             game_level = 0
@@ -84,7 +82,7 @@ def ball_movement():
 
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
-            sound = random.choice(range(1,3))
+            sound = random.choice(range(1,4))
             pygame.mixer.Channel(1).set_volume(0.5)
 
             if sound == 1:
@@ -99,7 +97,7 @@ def ball_movement():
         ball_speed_y *= -1  # Reverse ball's vertical direction
 
     # Ball collision with left and right boundaries
-    if ball.left <= 0 or ball.right >= (screen_width):
+    if ball.left <= 0 or ball.right >= screen_width:
         ball_speed_x *= -1
 
     # Ball goes below the bottom boundary (missed by player)
@@ -111,6 +109,15 @@ def paddle_hit():
 
     distance = 2 * (ball.centerx - player.centerx) / player.width
     ball_speed_x = distance * speed
+
+    # ==== More realistic vector based engine, kinda boring to play though ====
+    # distance = ball.center[0] - player.center[0], ball.center[1] - player.center[1]
+    # magnitude = math.sqrt(distance[0]**2 + distance[1]**2)
+
+    # direction = distance[0] / magnitude, distance[1] / magnitude
+    # ball_speed = speed * direction[0], speed * direction[1]
+    # ball_speed_y = ball_speed[1]
+    # ball_speed_x = ball_speed[0]
 
 def player_movement():
     """
@@ -143,11 +150,6 @@ def gameplay():
         # Task 4: Add your name
         # Why is this here? I mean, sure, it's added? but what
         name = "Angel and Yaneli?"
-        song = 1
-
-        # Check for music being started
-        if not music_check:
-            background_music()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Quit the game
@@ -205,44 +207,59 @@ def clamp(n, min_value, max_value):
     return max(min_value, min(n, max_value))
 
 def shop():
-    x = "temp"
+    print("temp")
 
 def cosmetics():
-    x = "temp"
+    print("temp")
 
 def mainmenu():
-    global newgame, start, music_check
+    global newgame, start, music_check, song
     music_check = False  # Reset music flag
-
 
     while True:
         screen = pygame.display.get_surface()
         screen.fill("black")
 
         option = clamp(1, 1, 3)
+        choice = [[1, 2, 3], [1, 2]]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Quit the game
                 pygame.quit()
                 sys.exit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    option += 1  # Move up an option
+                    choice[0]# Move up an option
                 if event.key == pygame.K_DOWN:
-                    option -= 1  # Move down an option
-                if event.key == pygame.K_RETURN and newgame and option == 1:
+                    choice[0] += 1 # Move down an option
+
+                # Press Button
+                if event.key == pygame.K_RETURN and newgame and choice[0] == 1 and choice[1] == 1:
+                    song = 1
+                    background_music()
                     gameplay()
-                if event.key == pygame.K_RETURN and newgame and option == 2:
+                if event.key == pygame.K_RETURN and newgame and choice[0] == 2 and choice[1] == 1:
+                    song = 2
                     shop()
-                if event.key == pygame.K_RETURN and newgame and option == 3:
+                if event.key == pygame.K_RETURN and newgame and choice[0] == 3 and choice[1] == 1:
+                    song = 2
                     cosmetics()
-                if event.key == pygame.K_RETURN and newgame and option == 4:
+                if event.key == pygame.K_RETURN and newgame and choice[0] == 4 and choice[1] == 1:
                     pygame.quit()
                     sys.exit()
 
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP:
+                    choice[0] += 1  # Stop moving up
+                if event.key == pygame.K_DOWN:
+                    choice[0] -= 1  # Stop moving down
         # Update display
         pygame.display.flip()
         clock.tick(60)
+
+def losing_screen():
+    print("temp")
 
 # General setup
 pygame.mixer.pre_init(44100, -16, 2, 1024)
@@ -252,12 +269,12 @@ pygame.init()
 clock = pygame.time.Clock()
 
 # ==== Main Window setup ====
-width, height = (800, 1000)
+width, height = (400, 500)
 flags = pygame.SCALED
 flags |= pygame.RESIZABLE  # optional
 
-screen_width = 800  # Screen width (can be adjusted)
-screen_height = 1000  # Screen height (can be adjusted)
+screen_width = 400  # Screen width (can be adjusted)
+screen_height = 500  # Screen height (can be adjusted)
 screen = pygame.display.set_mode((width, height), flags)
 pygame.display.set_caption('Pong')  # Set window title
 
@@ -281,7 +298,7 @@ player_speed = 0
 game_level = -1 # Resetting value to speed up the ball. Might be redundant.
 newgame = True # Indicates whether a new game can be begun.
 
-song = 2
+song = 1
 music_check = False
 
 # Score Text setup
@@ -291,8 +308,9 @@ basic_font = pygame.font.Font('freesansbold.ttf', 32)  # Font for displaying sco
 
 #Milestones popups
 milestones_popups= []
-milestones_messages= ["Good job!", "Amazing!", "Nice!", "Keep it up!"]
+milestones_messages= ["Good job!", "Amazing!", "Nice!", "Keep it up!", "Faster!", "You've got it!"]
 
 
 start = False  # Indicates if the game has started
 
+gameplay()
