@@ -24,7 +24,7 @@ def ball_movement():
     """
     Handles the movement of the ball and collision detection with the player and screen boundaries.
     """
-    global ball_speed_x, ball_speed_y, score, start, game_level
+    global ball_speed_x, ball_speed_y, score, start, game_level, current_paddlecolor
 
     # Base Ball Movement
     ball.x += ball_speed_x
@@ -63,6 +63,9 @@ def ball_movement():
             score += 1   # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
             ball_speed_x = speed * random.choice(range(-2, 1, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
+
+            #New paddle color
+            current_paddlecolor = random.choice(paddle_colors)
 
             # Update high score if current score is higher
             if score > high_score:
@@ -150,10 +153,11 @@ def gameplay():
         player_movement()
 
         # ==== Visuals ====
+
         light_grey = pygame.Color('grey83')
         screen = pygame.display.get_surface()
         screen.fill(bg_color)
-        pygame.draw.rect(screen, light_grey, player)  # Draw player paddle
+        pygame.draw.rect(screen,current_paddlecolor, player)  # Draw player paddle
 
         # TODO Task 3: Change the Ball Color
         pygame.draw.ellipse(screen, light_grey, ball)  # Draw ball
@@ -205,13 +209,16 @@ player_height = 15
 player_width = 200
 player = pygame.Rect(screen_width/2 - 45, screen_height - 20, player_width, player_height)  # Player paddle
 
-
+# Paddle colors
+paddle_colors= [pygame.Color('red'), pygame.Color('green'), pygame.Color('yellow'), pygame.Color('blue')]
+current_paddlecolor = paddle_colors[0]
 # ==== Game Variables ====
 ball_speed_x = 0
 ball_speed_y = 0
 player_speed = 0
 game_level = -1 # Resetting value to speed up the ball. Might be redundant.
 newgame = True # Indicates whether a new game can be begun.
+
 
 # Score Text setup
 score = 0
