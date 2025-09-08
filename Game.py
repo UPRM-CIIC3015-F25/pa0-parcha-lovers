@@ -60,7 +60,7 @@ def ball_movement():
             # TODO Task 2: Fix score to increase by 1
             score += 1   # Increase player score
             ball_speed_y *= -1  # Reverse ball's vertical direction
-            ball_speed_x = speed * random.choice(range(-2, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
+            ball_speed_x = speed * random.choice(range(-2, 1, 2)) # Randomize the ball speed meaning change in direction. DO NOT INCREASE PAST 3/-3.
 
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
@@ -192,7 +192,7 @@ bg_color = pygame.Color('grey12')
 ball = pygame.Rect(screen_width / 2 - 10, screen_height / 2 - 15, 30, 30)  # Ball (centered)
 # TODO Task 1 Make the paddle bigger
 player_height = 15
-player_width = 100
+player_width = 200
 player = pygame.Rect(screen_width/2 - 45, screen_height - 20, player_width, player_height)  # Player paddle
 
 
