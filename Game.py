@@ -70,7 +70,14 @@ def ball_movement():
             # Update high score if current score is higher
             if score > high_score:
                 high_score = score
-
+           #Add milestones popups
+            if score %5==0:
+                milestones_popups.append({
+                    "text": random.choice(milestones_messages),
+                    "x": player.x,
+                    "y": player.y-30,
+                    "start_time": pygame.time.get_ticks(),
+                })
 
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
@@ -166,6 +173,13 @@ def gameplay():
         # Display high score below current score
         high_score_text = basic_font.render(f'High Score: {high_score}', False, light_grey)
         screen.blit(high_score_text, (screen_width / 2 - 70, 50))
+        # Draw milestone popups
+        for popup in milestones_popups[:]:
+            popup_text = basic_font.render(popup['text'],True, pygame.Color('yellow'))
+            screen.blit(popup_text, (popup['x'],popup['y']))
+            popup['y'] -=1 #Make it float upward
+            if pygame.time.get_ticks() - popup['start_time'] > 1500: #Remove after 1.5s
+                milestones_popups.remove(popup)
 
         # Update display
         pygame.display.flip()
@@ -224,6 +238,10 @@ newgame = True # Indicates whether a new game can be begun.
 score = 0
 high_score = 0
 basic_font = pygame.font.Font('freesansbold.ttf', 32)  # Font for displaying score
+
+#Milestones popups
+milestones_popups= []
+milestones_messages= ["Good job!", "Amazing!", "Nice!", "Keep it up!"]
 
 
 start = False  # Indicates if the game has started
