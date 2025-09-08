@@ -3,9 +3,8 @@ from pygame import mixer
 import math
 
 # ==========
-# TODO Task 5 Create a Merge Conflict
 # Change the value of speed in a different branch to make a merge conflict.
-speed = 5
+speed = 7
 # ==========
 
 def background_music():
@@ -83,7 +82,7 @@ def ball_movement():
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
             sound = random.choice(range(1,4))
-            pygame.mixer.Channel(1).set_volume(0.5)
+            pygame.mixer.Channel(1).set_volume(0.2)
 
             if sound == 1:
                 pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink1.mp3"))
