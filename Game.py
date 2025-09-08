@@ -5,7 +5,7 @@ import math
 # ==========
 # TODO Task 5 Create a Merge Conflict
 # Change the value of speed in a different branch to make a merge conflict.
-speed = 5
+speed = 10
 # ==========
 
 def background_music():
@@ -312,5 +312,6 @@ milestones_messages= ["Good job!", "Amazing!", "Nice!", "Keep it up!", "Faster!"
 
 
 start = False  # Indicates if the game has started
+
 
 gameplay()
