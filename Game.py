@@ -4,29 +4,29 @@ import math
 
 # ==========
 # Change the value of speed in a different branch to make a merge conflict.
-speed = 7
+speed = 10
 # ==========
 
 def background_music():
     # Depending on the menu you're in, just music is on.
     global song, music_check
 
-
-    mixer.music.load("resources/sounds/anomalocaris.mp3")
-    mixer.music.set_volume(0.4)
-    pygame.mixer.music.play(-1)
+    if song == 1:
+        mixer.music.load("resources/sounds/anomalocaris.mp3")
+        mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(-1)
 
     # Main Menu Theme
-    if song == 2:
+    elif song == 2:
         mixer.music.load("resources/sounds/weevil.mp3")
         mixer.music.set_volume(0.4)
         pygame.mixer.music.play(-1)
 
         # Loser's Theme
-        if song == 3:
-            mixer.music.load("resources/sounds/snail.mp3")
-            mixer.music.set_volume(0.3)
-            pygame.mixer.music.play(-1)
+    else:
+        mixer.music.load("resources/sounds/snail.mp3")
+        mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
 
 def ball_movement():
     """
@@ -70,7 +70,8 @@ def ball_movement():
             # Update high score if current score is higher
             if score > high_score:
                 high_score = score
-           #Add milestones popups
+
+            # Add milestones popups
             if score %5==0:
                 milestones_popups.append({
                     "text": random.choice(milestones_messages),
@@ -81,14 +82,14 @@ def ball_movement():
 
             # TODO Task 6: Add sound effects HERE
             # Sound effect on hit. BOINK!!!
-            sound = random.choice(range(1,4))
+            sound = random.choice(range(1,3))
             pygame.mixer.Channel(1).set_volume(0.2)
 
             if sound == 1:
                 pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink1.mp3"))
-            if sound == 2:
+            elif sound == 2:
                 pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink2.mp3"))
-            if sound == 3:
+            else:
                 pygame.mixer.Channel(1).play(pygame.mixer.Sound("resources/sounds/boink3.mp3"))
 
     # Ball collision with top boundary
@@ -148,7 +149,7 @@ def gameplay():
         # Event handling
         # Task 4: Add your name
         # Why is this here? I mean, sure, it's added? but what
-        name = "Angel and Yaneli?"
+        name = "Angel Perez"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Quit the game
@@ -179,7 +180,6 @@ def gameplay():
         screen.fill(bg_color)
         pygame.draw.rect(screen, current_color, player)  # Draw player paddle
 
-        # TODO Task 3: Change the Ball Color
         pygame.draw.ellipse(screen, light_grey, ball)  # Draw ball
         player_text = basic_font.render(f'{score}', False, light_grey)  # Render player score
         screen.blit(player_text, (screen_width/2 - 15, 10))  # Display score on screen
@@ -211,16 +211,20 @@ def shop():
 def cosmetics():
     print("temp")
 
+def settings():
+    print("temp")
+
 def mainmenu():
-    global newgame, start, music_check, song
+    global newgame, start, music_check, song, screen
     music_check = False  # Reset music flag
 
     while True:
         screen = pygame.display.get_surface()
         screen.fill("black")
 
-        option = clamp(1, 1, 3)
-        choice = [[1, 2, 3], [1, 2]]
+        option = [["start", "shop", "cosmetics", "quit"], ["main", "settings"]]
+        choice1 = clamp(1, 1, 4)
+        choice2 = clamp(1, 1, 2)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Quit the game
@@ -228,31 +232,44 @@ def mainmenu():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    choice[0]# Move up an option
-                if event.key == pygame.K_DOWN:
-                    choice[0] += 1 # Move down an option
+                if event.key == pygame.K_UP and choice1 >= 1:
+                    choice1 -= 1 # Move up an option
+                if event.key == pygame.K_DOWN and choice1 <= 3:
+                    choice1 += 1 # Move down an option
+                if event.key == pygame.K_LEFT and choice2 >= 1:
+                    choice2 -= 1 # Move left
+                if event.key == pygame.K_RIGHT and choice2 <= 2:
+                    choice2 += 1 # Move right
 
                 # Press Button
-                if event.key == pygame.K_RETURN and newgame and choice[0] == 1 and choice[1] == 1:
+                if event.key == pygame.K_RETURN and newgame and option[0] == "start" and option[1] == "main":
                     song = 1
                     background_music()
                     gameplay()
-                if event.key == pygame.K_RETURN and newgame and choice[0] == 2 and choice[1] == 1:
+                elif event.key == pygame.K_RETURN and newgame and option[0] == "shop" and option[1] == "main":
                     song = 2
                     shop()
-                if event.key == pygame.K_RETURN and newgame and choice[0] == 3 and choice[1] == 1:
+                elif event.key == pygame.K_RETURN and newgame and option[0] == "cosmetics" and option[1] == "main":
                     song = 2
                     cosmetics()
-                if event.key == pygame.K_RETURN and newgame and choice[0] == 4 and choice[1] == 1:
+                elif event.key == pygame.K_RETURN and newgame and option[0] == "quit" and option[1] == "main":
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_RETURN and newgame and option[1] == "settings":
+                    song2 = 2
+                    settings()
+
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_UP:
-                    choice[0] += 1  # Stop moving up
+                    choice1 += 1  # Stop moving up
                 if event.key == pygame.K_DOWN:
-                    choice[0] -= 1  # Stop moving down
+                    choice1 -= 1  # Stop moving down
+                if event.key == pygame.K_LEFT:
+                    choice2 += 1 # Stop moving left
+                if event.key == pygame.K_RIGHT:
+                    choice2 -= 1 # Stop moving right
+
         # Update display
         pygame.display.flip()
         clock.tick(60)
